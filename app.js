@@ -277,18 +277,21 @@ function listenForStatementChanges() {
       });
 }
 
-// عرض كشف الحساب في الجدول
+// عرض كشف الحساب في الجدول (تمييز المصروفات باللون الأحمر والمبلغ بين قوسين)
 function renderTable() {
     const tbody = document.getElementById('statement-table').querySelector("tbody");
     tbody.innerHTML = "";
     statement.forEach(row => {
+        const isExpense = row.type === "مصروف";
+        const trClass = isExpense ? ' class="expense-row"' : '';
+        let amountText = isExpense ? `(${row.amount})` : row.amount;
         tbody.innerHTML += `
-            <tr>
+            <tr${trClass}>
                 <td>${row.date}</td>
                 <td>${row.note}</td>
                 <td>${row.type}</td>
                 <td>${row.member}</td>
-                <td>${row.amount}</td>
+                <td class="amount-cell">${amountText}</td>
                 <td>${row.remarks || ""}</td>
             </tr>
         `;
@@ -316,13 +319,16 @@ function filterTable() {
             (!from || row.date >= from) &&
             (!to || row.date <= to)
         ) {
+            const isExpense = row.type === "مصروف";
+            const trClass = isExpense ? ' class="expense-row"' : '';
+            let amountText = isExpense ? `(${row.amount})` : row.amount;
             tbody.innerHTML += `
-                <tr>
+                <tr${trClass}>
                     <td>${row.date}</td>
                     <td>${row.note}</td>
                     <td>${row.type}</td>
                     <td>${row.member}</td>
-                    <td>${row.amount}</td>
+                    <td class="amount-cell">${amountText}</td>
                     <td>${row.remarks || ""}</td>
                 </tr>
             `;
@@ -337,7 +343,7 @@ function exportToExcel() {
         "البيان": row.note,
         "النوع": row.type,
         "العضو": row.member,
-        "المبلغ": row.amount,
+        "المبلغ": row.type === "مصروف" ? `(${row.amount})` : row.amount,
         "ملاحظات": row.remarks || ""
     }));
 
