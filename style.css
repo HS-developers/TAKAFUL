@@ -170,6 +170,17 @@ nav button {
     background: #d0e5fc66;
 }
 
+/* تمييز صفوف المصروفات في الجدول */
+#statement-table tr.expense-row td {
+    color: #b20000 !important;
+    font-weight: bold;
+}
+#statement-table tr.expense-row td.amount-cell {
+    font-family: 'Cairo', Arial, sans-serif;
+    font-weight: bold;
+    color: #b20000 !important;
+}
+
 /* نافذة مراجعة الطلبات (لأمين الصندوق) */
 #pending-requests-list {
     width: 100%;
