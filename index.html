@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>صندوق تكافل عائلة آل بنونه</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <header>
+        <h1>صندوق تكافل عائلة آل بنونه</h1>
+    </header>
+
+    <!-- صفحة الدخول -->
+    <section id="login-section">
+        <div class="login-box">
+            <h2>تسجيل الدخول</h2>
+            <input type="email" id="login-email" placeholder="البريد الإلكتروني">
+            <input type="password" id="login-password" placeholder="كلمة المرور">
+            <button onclick="login()">دخول</button>
+            <div id="login-error" class="error"></div>
+        </div>
+    </section>
+
+    <!-- لوحة التحكم الرئيسية -->
+    <section id="dashboard-section" class="hidden">
+        <nav>
+            <span id="user-name"></span>
+            <button onclick="logout()">تسجيل الخروج</button>
+            <button id="review-requests-btn" class="hidden" onclick="showReviewModal()">مراجعة طلبات السداد</button>
+        </nav>
+        <div class="balance-card">
+            <span>رصيد الصندوق الحالي:</span>
+            <span id="current-balance">0 ج.م</span>
+        </div>
+        <div class="quick-actions">
+            <button onclick="showPaymentModal()">إضافة سداد شهري</button>
+            <button id="add-expense-btn" class="hidden" onclick="showExpenseModal()">صرف مبلغ</button>
+            <button onclick="exportToExcel()">تصدير كشف الحساب</button>
+        </div>
+        <div class="filters">
+            <label>من: <input type="date" id="from-date"></label>
+            <label>إلى: <input type="date" id="to-date"></label>
+            <button onclick="filterTable()">فلتر</button>
+        </div>
+        <div class="table-container">
+            <table id="statement-table">
+                <thead>
+                    <tr>
+                        <th>التاريخ</th>
+                        <th>البيان</th>
+                        <th>النوع</th>
+                        <th>العضو</th>
+                        <th>المبلغ</th>
+                        <th>ملاحظات</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- البيانات ستملأ ديناميكياً -->
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- نافذة السداد -->
+    <div id="payment-modal" class="modal hidden">
+        <div class="modal-content">
+            <h3>إضافة طلب سداد شهر جديد</h3>
+            <label>اختر الشهر:
+                <select id="payment-month"></select>
+            </label>
+            <label>
+              اسم العضو:
+              <select id="payment-member"></select>
+            </label>
+            <input type="number" id="payment-amount" placeholder="المبلغ (جنيه)" min="1">
+            <label>
+                طريقة التحويل:
+                <select id="payment-method">
+                    <option value="محفظة إلكترونية">محفظة إلكترونية</option>
+                    <option value="إنستاباي">إنستاباي</option>
+                    <option value="نقدي">نقدي</option>
+                    <option value="أخرى">أخرى</option>
+                </select>
+            </label>
+            <input type="text" id="payment-ref" placeholder="رقم العملية أو ملاحظات (اختياري)">
+            <button onclick="addPaymentRequest()">طلب سداد</button>
+            <button onclick="hidePaymentModal()">إلغاء</button>
+            <div id="payment-request-msg" class="error"></div>
+        </div>
+    </div>
+
+    <!-- نافذة صرف مبلغ -->
+    <div id="expense-modal" class="modal hidden">
+      <div class="modal-content">
+        <h3>صرف مبلغ من الصندوق</h3>
+        <input type="date" id="expense-date" value="">
+        <input type="text" id="expense-note" placeholder="البيان/سبب الصرف">
+        <input type="text" id="expense-member" placeholder="المستفيد (اختياري)">
+        <input type="number" id="expense-amount" placeholder="المبلغ (جنيه)" min="1">
+        <input type="text" id="expense-remarks" placeholder="ملاحظات (اختياري)">
+        <button onclick="addExpense()">حفظ المصروف</button>
+        <button onclick="hideExpenseModal()">إلغاء</button>
+        <div id="expense-msg" class="error"></div>
+      </div>
+    </div>
+
+    <!-- نافذة مراجعة الطلبات (لأمين الصندوق/المسؤول فقط) -->
+    <div id="review-modal" class="modal hidden">
+        <div class="modal-content" style="max-width:860px;min-width:340px;">
+            <h3>طلبات السداد في الانتظار</h3>
+            <div id="pending-requests-list"></div>
+            <button onclick="hideReviewModal()">إغلاق</button>
+        </div>
+    </div>
+
+    <!-- نافذة رسالة النجاح بعد طلب السداد أو الصرف -->
+    <div id="success-modal" class="modal hidden">
+      <div class="modal-content">
+        <div id="success-message"></div>
+        <button onclick="hideSuccessModal()">موافق</button>
+      </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+    <!-- SheetJS لتصدير الإكسل -->
+    <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>

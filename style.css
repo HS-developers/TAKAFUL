@@ -1,0 +1,283 @@
+body {
+    font-family: 'Cairo', Arial, sans-serif;
+    background: #f6f5f2 url('https://www.transparenttextures.com/patterns/asfalt-light.png');
+    margin: 0;
+    direction: rtl;
+    color: #222;
+}
+header {
+    background: linear-gradient(90deg, #1A237E 80%, #FFD700 100%);
+    color: #fff;
+    text-align: center;
+    padding: 2rem 0 1rem 0;
+    margin-bottom: 2rem;
+    box-shadow: 0 2px 8px #eee;
+    letter-spacing: 1px;
+}
+h1 {
+    margin: 0;
+    font-size: 2.2rem;
+    letter-spacing: 2px;
+}
+.login-box {
+    background: #fff;
+    max-width: 350px;
+    margin: 3rem auto;
+    padding: 2rem 2rem 1.5rem 2rem;
+    border-radius: 16px;
+    box-shadow: 0 3px 16px #bbb5;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+.login-box input {
+    padding: 0.8rem;
+    border-radius: 7px;
+    border: 1px solid #c5c5c5;
+    font-size: 1.1rem;
+    outline: none;
+    margin-bottom: 0.5rem;
+}
+.login-box button {
+    background: #1A237E;
+    color: #fff;
+    border: none;
+    border-radius: 7px;
+    padding: 0.8rem;
+    font-size: 1.1rem;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+.login-box button:hover {
+    background: #2535a3;
+}
+.error {
+    color: #b92c2c;
+    font-size: 0.95rem;
+    text-align: center;
+    min-height: 22px;
+}
+
+.hidden { display: none !important; }
+
+nav {
+    display: flex;
+    justify-content: flex-start;
+    gap: 2rem;
+    align-items: center;
+    padding: 1rem 2rem 0.5rem 2rem;
+    background: #fffbe9;
+    border-bottom: 1px solid #eee;
+}
+nav button {
+    background: #FFD700;
+    color: #1A237E;
+    border: none;
+    border-radius: 8px;
+    padding: 0.5rem 1.2rem;
+    font-weight: bold;
+    cursor: pointer;
+    margin-right: 1rem;
+}
+.balance-card {
+    background: #1A237E;
+    color: #FFD700;
+    border-radius: 12px;
+    margin: 2rem auto 1.5rem auto;
+    padding: 1.2rem 2.5rem;
+    font-size: 1.4rem;
+    max-width: 370px;
+    text-align: center;
+    box-shadow: 0 2px 10px #e0e0e0;
+}
+.quick-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    margin-bottom: 1.5rem;
+}
+.quick-actions button {
+    background: #388E3C;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 0.8rem 1.5rem;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background 0.2s;
+    font-weight: bold;
+}
+.quick-actions button:last-child {
+    background: #FFD700;
+    color: #1A237E;
+}
+#add-expense-btn {
+    background: #c0392b;
+    color: #fff;
+}
+.quick-actions button:hover {
+    opacity: 0.92;
+}
+
+.filters {
+    text-align: center;
+    margin-bottom: 1rem;
+    font-size: 1rem;
+}
+.filters label {
+    margin-left: 1.5rem;
+}
+.filters input[type="date"] {
+    padding: 0.3rem 0.6rem;
+    border-radius: 5px;
+    border: 1px solid #bbb;
+}
+
+.table-container {
+    margin: 0 auto 2rem auto;
+    max-width: 900px;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 2px 10px #e0e0e0;
+    overflow-x: auto;
+}
+#statement-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 1.08rem;
+}
+#statement-table th, #statement-table td {
+    padding: 0.7rem;
+    border-bottom: 1px solid #f2f2f2;
+    text-align: center;
+}
+#statement-table th {
+    background: #f7d46e;
+    color: #1A237E;
+    font-weight: bold;
+}
+
+#statement-table td {
+    font-size: 1.06rem;
+}
+#statement-table tr:nth-child(even) {
+    background: #f3f6fb;
+}
+#statement-table tr:nth-child(odd) {
+    background: #fff;
+}
+#statement-table tr:hover {
+    background: #d0e5fc66;
+}
+
+/* نافذة مراجعة الطلبات (لأمين الصندوق) */
+#pending-requests-list {
+    width: 100%;
+    overflow-x: auto;
+}
+#pending-requests-list table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 0.5rem 0 1.5rem 0;
+    font-size: 1.07rem;
+    background: #f9f9ff;
+    box-shadow: 0 3px 10px #eee7;
+    border-radius: 10px;
+    overflow: hidden;
+}
+#pending-requests-list th,
+#pending-requests-list td {
+    padding: 0.8rem 0.5rem;
+    text-align: center;
+    border-bottom: 1px solid #e6e6f0;
+}
+#pending-requests-list th {
+    background: #1A237E;
+    color: #FFD700;
+    font-weight: bold;
+    font-size: 1.04rem;
+}
+#pending-requests-list tr:nth-child(even) {
+    background: #f3f6fb;
+}
+#pending-requests-list tr:nth-child(odd) {
+    background: #fff;
+}
+#pending-requests-list tr:hover {
+    background: #d0e5fc66;
+}
+#pending-requests-list button {
+    padding: 0.5rem 1.2rem;
+    border-radius: 7px;
+    border: none;
+    font-weight: bold;
+    font-size: 1rem;
+    cursor: pointer;
+}
+#pending-requests-list button[onclick^="approveRequest"] {
+    background: #27ae60;
+    color: #fff;
+    margin: 0 0.2rem;
+    transition: background 0.2s;
+}
+#pending-requests-list button[onclick^="approveRequest"]:hover {
+    background: #219150;
+}
+#pending-requests-list button[onclick^="rejectRequest"] {
+    background: #c0392b;
+    color: #fff;
+    margin: 0 0.2rem;
+    transition: background 0.2s;
+}
+#pending-requests-list button[onclick^="rejectRequest"]:hover {
+    background: #951f13;
+}
+
+/* نافذة رسالة النجاح */
+#success-modal .modal-content {
+    max-width: 340px;
+    text-align: center;
+}
+#success-message {
+    color: #155724;
+    background: #d4edda;
+    border: 1px solid #c3e6cb;
+    margin-bottom: 1.5rem;
+    padding: 1rem 0.5rem;
+    border-radius: 8px;
+    font-size: 1.05rem;
+}
+
+.modal {
+    position: fixed;
+    top: 0; right: 0; bottom: 0; left: 0;
+    background: #0007;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+}
+.modal-content {
+    background: #fff;
+    border-radius: 12px;
+    padding: 2rem 2.5rem;
+    min-width: 290px;
+    box-shadow: 0 3px 20px #3334;
+    display: flex;
+    flex-direction: column;
+    gap: 1.2rem;
+    text-align: center;
+}
+
+@media (max-width: 600px) {
+    .table-container, .balance-card {
+        max-width: 98vw;
+        padding: 1rem;
+    }
+    .modal-content {
+        padding: 1rem 0.5rem;
+    }
+    #pending-requests-list table {
+        font-size: 0.98rem;
+    }
+}
