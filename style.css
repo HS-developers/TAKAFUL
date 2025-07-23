@@ -378,7 +378,7 @@ nav button {
 }
 #payment-modal input,
 #payment-modal select {
-    width: 100%;
+    width: 80%;
     padding: 0.58rem 2rem 0.58rem 0.7rem;
     border-radius: 11px;
     border: 1.1px solid #1976d2;
