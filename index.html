@@ -28,7 +28,13 @@
         <nav>
             <span id="user-name"></span>
             <button onclick="logout()">تسجيل الخروج</button>
-            <button id="review-requests-btn" class="hidden" onclick="showReviewModal()">مراجعة طلبات السداد</button>
+            <!-- زر مراجعة الطلبات مع شارة دائرية للعدد -->
+            <button id="review-requests-btn" class="hidden" onclick="showReviewModal()" style="position:relative;">
+                مراجعة طلبات السداد
+                <span id="pending-count" style="display:none; position:absolute; top:-8px; right:-8px; min-width:26px; height:26px; background:#e74c3c; color:#fff; font-weight:bold; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:1rem; box-shadow:0 0 2px #555; border:2px solid #fff;"></span>
+            </button>
+            <!-- زر كل الحركات (ادمن) -->
+            <button id="admin-movements-btn" class="hidden" onclick="showAdminMovements()">اظهار كل الحركات </button>
         </nav>
         <div class="balance-card">
             <span>رصيد الصندوق الحالي:</span>
@@ -67,24 +73,30 @@
     <div id="payment-modal" class="modal hidden">
         <div class="modal-content">
             <h3>إضافة طلب سداد شهر جديد</h3>
-            <label>اختر الشهر:
+            <div class="form-group">
+                <label for="payment-month">اختر الشهر:</label>
                 <select id="payment-month"></select>
-            </label>
-            <label>
-              اسم العضو:
-              <select id="payment-member"></select>
-            </label>
-            <input type="number" id="payment-amount" placeholder="المبلغ (جنيه)" min="1">
-            <label>
-                طريقة التحويل:
+            </div>
+            <div class="form-group">
+                <label for="payment-member">اسم العضو:</label>
+                <select id="payment-member"></select>
+            </div>
+            <div class="form-group">
+                <label for="payment-amount">المبلغ:</label>
+                <input type="number" id="payment-amount" placeholder="المبلغ (جنيه)" min="1">
+            </div>
+            <div class="form-group">
+                <label for="payment-method">طريقة التحويل:</label>
                 <select id="payment-method">
                     <option value="محفظة إلكترونية">محفظة إلكترونية</option>
                     <option value="إنستاباي">إنستاباي</option>
                     <option value="نقدي">نقدي</option>
                     <option value="أخرى">أخرى</option>
                 </select>
-            </label>
-            <input type="text" id="payment-ref" placeholder="رقم العملية أو ملاحظات (اختياري)">
+            </div>
+            <div class="form-group">
+                <input type="text" id="payment-ref" placeholder="رقم العملية أو ملاحظات (اختياري)">
+            </div>
             <button onclick="addPaymentRequest()">طلب سداد</button>
             <button onclick="hidePaymentModal()">إلغاء</button>
             <div id="payment-request-msg" class="error"></div>
@@ -95,13 +107,31 @@
     <div id="expense-modal" class="modal hidden">
       <div class="modal-content">
         <h3>صرف مبلغ من الصندوق</h3>
-        <input type="date" id="expense-date" value="">
-        <input type="text" id="expense-note" placeholder="البيان/سبب الصرف">
-        <input type="text" id="expense-member" placeholder="المستفيد (اختياري)">
-        <input type="number" id="expense-amount" placeholder="المبلغ (جنيه)" min="1">
-        <input type="text" id="expense-remarks" placeholder="ملاحظات (اختياري)">
-        <button onclick="addExpense()">حفظ المصروف</button>
-        <button onclick="hideExpenseModal()">إلغاء</button>
+        <div class="form-group">
+            <label for="expense-date">التاريخ:</label>
+            <input type="date" id="expense-date" value="">
+        </div>
+        <div class="form-group">
+            <label for="expense-note">البيان/سبب الصرف:</label>
+            <input type="text" id="expense-note" placeholder="البيان/سبب الصرف">
+        </div>
+        <div class="form-group">
+            <label for="expense-member">اسم المستفيد:</label>
+            <input type="text" id="expense-member" placeholder="اسم المستفيد">
+        </div>
+        <div class="form-group">
+            <label for="expense-amount">المبلغ:</label>
+            <input type="number" id="expense-amount" placeholder="المبلغ (جنيه)" min="1">
+        </div>
+        <div class="form-group">
+            <label for="expense-remarks">ملاحظات (اختياري):</label>
+            <input type="text" id="expense-remarks" placeholder="ملاحظات (اختياري)">
+        </div>
+        <!-- الأزرار جنب بعض -->
+        <div class="expense-actions">
+          <button onclick="addExpense()">حفظ المصروف</button>
+          <button onclick="hideExpenseModal()">إلغاء</button>
+        </div>
         <div id="expense-msg" class="error"></div>
       </div>
     </div>
@@ -122,6 +152,17 @@
         <button onclick="hideSuccessModal()">موافق</button>
       </div>
     </div>
+
+    <!-- نافذة كل الحركات للإدمن -->
+  <div id="admin-movements-modal-container" class="modal hidden">
+  <div class="modal-content">
+    <button class="close-btn" onclick="hideAdminMovements()" aria-label="إغلاق النافذة" title="إغلاق">✖</button>
+    <h3>كل الحركات المالية</h3>
+    <div class="admin-movements-table-container">
+      <!-- سيتم إدراج الجدول ديناميكياً هنا -->
+    </div>
+  </div>
+</div>
 
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
