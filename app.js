@@ -12,17 +12,16 @@ const members = [
     "سيف حسين ابو العزايم",
     "محمد وحيد ابو العزايم",
     "هيثم محمود حسين",
-
 ];
 
 const firebaseConfig = {
-  apiKey: "AIzaSyC-nKV8iCPHojNjQt5d6tBZ20IFj3rE-qA",
-  authDomain: "takaful-c8dfc.firebaseapp.com",
-  projectId: "takaful-c8dfc",
-  storageBucket: "takaful-c8dfc.appspot.com",
-  messagingSenderId: "467215377808",
-  appId: "1:467215377808:web:5d0cd7570cb6e13fb87f15",
-  measurementId: "G-QECKN1ECM3"
+    apiKey: "AIzaSyC-nKV8iCPHojNjQt5d6tBZ20IFj3rE-qA",
+    authDomain: "takaful-c8dfc.firebaseapp.com",
+    projectId: "takaful-c8dfc",
+    storageBucket: "takaful-c8dfc.appspot.com",
+    messagingSenderId: "467215377808",
+    appId: "1:467215377808:web:5d0cd7570cb6e13fb87f15",
+    measurementId: "G-QECKN1ECM3"
 };
 
 firebase.initializeApp(firebaseConfig);
@@ -88,10 +87,14 @@ async function login() {
         if (currentUserData.isAdmin) {
             document.getElementById('review-requests-btn').classList.remove('hidden');
             document.getElementById('add-expense-btn').classList.remove('hidden');
+            document.getElementById('admin-movements-btn').classList.remove('hidden');
         } else {
             document.getElementById('review-requests-btn').classList.add('hidden');
             document.getElementById('add-expense-btn').classList.add('hidden');
+            document.getElementById('admin-movements-btn').classList.add('hidden');
         }
+        // تحديث شارة الطلبات المعلقة لحظياً
+        listenPendingRequestsCount();
         showUserAlertIfExists();
     } catch(e) {
         errorBox.textContent = "بيانات الدخول غير صحيحة أو هناك مشكلة: " + e.message;
@@ -121,9 +124,17 @@ function hidePaymentModal() {
     document.getElementById('payment-modal').classList.add('hidden');
 }
 
-// نافذة رسالة النجاح
+// نافذة رسالة النجاح (تنسيق احترافي)
 function showSuccessModal(msg) {
-    document.getElementById('success-message').textContent = msg;
+    const messageBox = document.getElementById('success-message');
+    messageBox.innerHTML = `
+        <div style="display:flex;flex-direction:column;align-items:center;gap:0.7rem;">
+            <span style="font-size:2.2rem;">✅</span>
+            <span style="font-size:1.2rem;color:#1976d2;font-weight:bold;">تم إرسال طلب السداد بنجاح!</span>
+            <span style="color:#222;font-size:1.08rem;">${msg}</span>
+            <span style="color:#388e3c;font-size:1.05rem;">جاري المراجعة من أمين الصندوق</span>
+        </div>
+    `;
     document.getElementById('success-modal').classList.remove('hidden');
 }
 function hideSuccessModal() {
@@ -182,7 +193,8 @@ function addPaymentRequest() {
     }).then(() => {
         msgBox.textContent = "";
         hidePaymentModal();
-        showSuccessModal("تم إرسال طلب السداد وسيتم مراجعته من أمين الصندوق. شكراً لك.");
+        showSuccessModal("شكراً لك");
+        // لا داعي لتحديث العدد لأن المستمع اللحظي سيقوم بذلك
     }).catch(e => {
         msgBox.textContent = "حدث خطأ: " + e.message;
     });
@@ -243,26 +255,37 @@ function loadPendingRequests() {
         listDiv.innerHTML = html;
     });
 }
+
+// رسالة تأكيد قبل الموافقة أو الرفض
 function approveRequest(id) {
+    if (!confirm("هل أنت متأكد من اعتماد هذا الطلب؟")) return;
     db.collection("payments_requests").doc(id).get().then(doc => {
         const d = doc.data();
+        // تحقق إذا كان رقم العملية رقم فقط
+        let paymentRefText = "";
+        if (d.paymentRef && /^\d+$/.test(d.paymentRef.trim())) {
+            paymentRefText = " - رقم العملية: " + d.paymentRef.trim();
+        }
         return db.collection("statement").add({
             date: d.date,
             note: d.note,
             type: d.type,
             member: d.member,
             amount: d.amount,
-            remarks: `تم اعتماده من أمين الصندوق (${d.paymentMethod}${d.paymentRef ? " - " + d.paymentRef : ""})`
+            remarks: `تم اعتماده من أمين الصندوق (${d.paymentMethod}${paymentRefText})`
         }).then(() => {
             return db.collection("payments_requests").doc(id).update({status: "معتمد"});
         });
     }).then(() => {
         loadPendingRequests();
+        // لا داعي لتحديث العدد لأن المستمع اللحظي سيقوم بذلك
     });
 }
 function rejectRequest(id) {
+    if (!confirm("هل أنت متأكد من رفض هذا الطلب؟")) return;
     db.collection("payments_requests").doc(id).update({status: "مرفوض"}).then(() => {
         loadPendingRequests();
+        // لا داعي لتحديث العدد لأن المستمع اللحظي سيقوم بذلك
     });
 }
 
@@ -272,7 +295,9 @@ function listenForStatementChanges() {
       .onSnapshot(snapshot => {
         statement = [];
         snapshot.forEach(doc => {
-            statement.push(doc.data());
+            let row = doc.data();
+            row._id = doc.id;
+            statement.push(row);
         });
         renderTable();
         updateBalance();
@@ -412,6 +437,77 @@ function showTopAlert(msg) {
     }
     el.textContent = msg;
     setTimeout(() => { if (el) el.remove(); }, 8000);
+}
+
+// ===== نافذة "كل الحركات" للإدمن =====
+
+// إظهار نافذة كل الحركات وجلب البيانات
+function showAdminMovements() {
+    document.getElementById('admin-movements-modal-container').classList.remove('hidden');
+    const container = document.querySelector('#admin-movements-modal-container .admin-movements-table-container');
+    container.innerHTML = '<div style="text-align:center; color:#888">جاري تحميل البيانات...</div>';
+    db.collection("statement").orderBy("date", "desc").get().then(qs => {
+        if (qs.empty) {
+            container.innerHTML = "<p style='color:#666;font-size:1.1rem;'>لا توجد أي حركات.</p>";
+            return;
+        }
+        let html = `<table>
+            <thead>
+                <tr>
+                    <th>التاريخ</th>
+                    <th>البيان</th>
+                    <th>النوع</th>
+                    <th>العضو</th>
+                    <th>المبلغ</th>
+                    <th>ملاحظات</th>
+                    <th>إلغاء الحركة</th>
+                </tr>
+            </thead>
+            <tbody>`;
+        qs.forEach(doc => {
+            const d = doc.data();
+            html += `<tr${d.type === "مصروف" ? ' class="expense-row"' : ''}>
+                <td>${d.date}</td>
+                <td>${d.note}</td>
+                <td>${d.type}</td>
+                <td>${d.member}</td>
+                <td class="amount-cell">${d.type === "مصروف" ? `(${d.amount})` : d.amount}</td>
+                <td>${d.remarks || ""}</td>
+                <td><button onclick="deleteStatement('${doc.id}')">إلغاء</button></td>
+            </tr>`;
+        });
+        html += `</tbody></table>`;
+        container.innerHTML = html;
+    });
+}
+
+// دالة حذف الحركة مع تأكيد وإعادة تحميل الجدول
+function deleteStatement(id) {
+    if (!confirm("هل أنت متأكد من إلغاء هذه الحركة؟ سيتم حذفها نهائياً!")) return;
+    db.collection("statement").doc(id).delete().then(() => {
+        showAdminMovements(); // إعادة تحميل القائمة بعد الحذف
+    });
+}
+
+// إخفاء نافذة كل الحركات
+function hideAdminMovements() {
+    document.getElementById('admin-movements-modal-container').classList.add('hidden');
+}
+
+// ===== شارة عدد طلبات السداد في الانتظار للإدمن (تحديث لحظي) =====
+function listenPendingRequestsCount() {
+    db.collection("payments_requests").where('status', '==', 'في الانتظار')
+      .onSnapshot(snapshot => {
+        const count = snapshot.size;
+        const el = document.getElementById('pending-count');
+        if (count > 0) {
+            el.textContent = count;
+            el.style.display = "flex";
+        } else {
+            el.textContent = "";
+            el.style.display = "none";
+        }
+      });
 }
 
 window.onload = function() {};
