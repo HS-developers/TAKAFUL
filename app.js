@@ -33,6 +33,9 @@ firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.firestore();
 
+// *** أضف هذا السطر بعد تهيئة auth مباشرة ***
+auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
+
 let statement = [];
 let currentUser = null;
 let currentUserData = null;
@@ -87,7 +90,7 @@ async function login() {
         document.getElementById('user-name').textContent = "مرحباً " + (currentUserData.name || currentUser.email);
         fillMonths();
         fillMemberSelect();
-        showMembersCount(); // <-- هنا مكانها السليم
+        showMembersCount();
         listenForStatementChanges();
         // إظهار أزرار الأدمن فقط إذا كان الأدمن
         if (currentUserData.isAdmin) {
@@ -515,9 +518,46 @@ function listenPendingRequestsCount() {
         }
       });
 }
-window.onload = function() {};
+
+// === تحقق تلقائي من حالة تسجيل الدخول عند تحميل الصفحة ===
+auth.onAuthStateChanged(function(user) {
+    if (user) {
+        currentUser = user;
+        db.collection("users").doc(user.uid).get().then(snap => {
+            if (!snap.exists) {
+                auth.signOut();
+                return;
+            }
+            currentUserData = snap.data();
+            document.getElementById('login-section').classList.add('hidden');
+            document.getElementById('dashboard-section').classList.remove('hidden');
+            document.getElementById('user-name').textContent = "مرحباً " + (currentUserData.name || currentUser.email);
+            fillMonths();
+            fillMemberSelect();
+            showMembersCount();
+            listenForStatementChanges();
+            if (currentUserData.isAdmin) {
+                document.getElementById('review-requests-btn').classList.remove('hidden');
+                document.getElementById('add-expense-btn').classList.remove('hidden');
+                document.getElementById('admin-movements-btn').classList.remove('hidden');
+            } else {
+                document.getElementById('review-requests-btn').classList.add('hidden');
+                document.getElementById('add-expense-btn').classList.add('hidden');
+                document.getElementById('admin-movements-btn').classList.add('hidden');
+            }
+            listenPendingRequestsCount();
+            showUserAlertIfExists();
+        });
+    } else {
+        document.getElementById('login-section').classList.remove('hidden');
+        document.getElementById('dashboard-section').classList.add('hidden');
+    }
+});
+
 function showMembersCount() {
     // استبعد "تبرعات خاصة"
     const count = members.filter(name => name !== "تبرعات خاصة").length;
     document.getElementById('members-count').textContent = `عدد المشاركين بالصندوق: ${count}`;
 }
+
+window.onload = function() {};
