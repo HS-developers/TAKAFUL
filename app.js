@@ -87,6 +87,7 @@ async function login() {
         document.getElementById('user-name').textContent = "مرحباً " + (currentUserData.name || currentUser.email);
         fillMonths();
         fillMemberSelect();
+        showMembersCount(); // <-- هنا مكانها السليم
         listenForStatementChanges();
         // إظهار أزرار الأدمن فقط إذا كان الأدمن
         if (currentUserData.isAdmin) {
@@ -514,5 +515,9 @@ function listenPendingRequestsCount() {
         }
       });
 }
-
 window.onload = function() {};
+function showMembersCount() {
+    // استبعد "تبرعات خاصة"
+    const count = members.filter(name => name !== "تبرعات خاصة").length;
+    document.getElementById('members-count').textContent = `عدد المشاركين بالصندوق: ${count}`;
+}
