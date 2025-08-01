@@ -765,3 +765,25 @@ nav button {
         padding: 1.2rem 0.4rem 1.1rem 0.4rem;
     }
 }
+
+/* تحسين شريط التنقل في الشاشات الصغيرة */
+@media (max-width: 700px) {
+  nav {
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 0.18rem;
+    justify-content: flex-start;
+    align-items: center;
+    padding: 0.6rem 0.5rem 0.4rem 0.5rem;
+    overflow-x: auto;
+  }
+  nav button, nav span {
+    width: auto !important;
+    margin: 0 !important;
+    font-size: 0.98rem;
+    padding: 0.46rem 0.7rem;
+    min-width: 85px;
+    box-sizing: border-box;
+    white-space: nowrap;
+  }
+}
