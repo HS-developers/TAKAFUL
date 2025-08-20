@@ -671,6 +671,9 @@ nav button {
         min-width: 600px;
     }
 }
+
+/* تم إلغاء تولتيب حالة الدفع من موقع بنونة */
+/* .bannona-tooltip - تم إلغاؤها */
 /* تحسين نافذة صرف مبلغ من الصندوق */
 #expense-modal .modal-content {
     background: linear-gradient(135deg, #fffbe9 70%, #f0f4c3 100%);
