@@ -560,4 +560,9 @@ function showMembersCount() {
     document.getElementById('members-count').textContent = `عدد المشاركين بالصندوق: ${count}`;
 }
 
+// فتح موقع صيانة المدفن
+function openBannonaWebsite() {
+    window.location.href = "https://hs-developers.github.io/bannona/";
+}
+
 window.onload = function() {};
